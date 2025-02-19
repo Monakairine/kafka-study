@@ -9,6 +9,12 @@ module.exports = require("@nestjs/core");
 
 /***/ }),
 /* 2 */
+/***/ ((module) => {
+
+module.exports = require("@nestjs/swagger");
+
+/***/ }),
+/* 3 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -19,30 +25,30 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ValidatorModule = void 0;
-const common_1 = __webpack_require__(3);
-const validator_controller_1 = __webpack_require__(4);
-const validator_service_1 = __webpack_require__(5);
-let ValidatorModule = class ValidatorModule {
+exports.ModerationModule = void 0;
+const common_1 = __webpack_require__(4);
+const moderation_controller_1 = __webpack_require__(5);
+const moderation_service_1 = __webpack_require__(6);
+let ModerationModule = class ModerationModule {
 };
-exports.ValidatorModule = ValidatorModule;
-exports.ValidatorModule = ValidatorModule = __decorate([
+exports.ModerationModule = ModerationModule;
+exports.ModerationModule = ModerationModule = __decorate([
     (0, common_1.Module)({
         imports: [],
-        controllers: [validator_controller_1.ValidatorController],
-        providers: [validator_service_1.ValidatorService],
+        controllers: [moderation_controller_1.ModerationController],
+        providers: [moderation_service_1.ModerationService],
     })
-], ValidatorModule);
+], ModerationModule);
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ ((module) => {
 
 module.exports = require("@nestjs/common");
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -57,33 +63,33 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ValidatorController = void 0;
-const common_1 = __webpack_require__(3);
-const validator_service_1 = __webpack_require__(5);
-let ValidatorController = class ValidatorController {
-    validatorService;
-    constructor(validatorService) {
-        this.validatorService = validatorService;
+exports.ModerationController = void 0;
+const common_1 = __webpack_require__(4);
+const moderation_service_1 = __webpack_require__(6);
+let ModerationController = class ModerationController {
+    moderationService;
+    constructor(moderationService) {
+        this.moderationService = moderationService;
     }
     getHello() {
-        return this.validatorService.getHello();
+        return this.moderationService.getHello();
     }
 };
-exports.ValidatorController = ValidatorController;
+exports.ModerationController = ModerationController;
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", String)
-], ValidatorController.prototype, "getHello", null);
-exports.ValidatorController = ValidatorController = __decorate([
+], ModerationController.prototype, "getHello", null);
+exports.ModerationController = ModerationController = __decorate([
     (0, common_1.Controller)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof validator_service_1.ValidatorService !== "undefined" && validator_service_1.ValidatorService) === "function" ? _a : Object])
-], ValidatorController);
+    __metadata("design:paramtypes", [typeof (_a = typeof moderation_service_1.ModerationService !== "undefined" && moderation_service_1.ModerationService) === "function" ? _a : Object])
+], ModerationController);
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -94,17 +100,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ValidatorService = void 0;
-const common_1 = __webpack_require__(3);
-let ValidatorService = class ValidatorService {
+exports.ModerationService = void 0;
+const common_1 = __webpack_require__(4);
+let ModerationService = class ModerationService {
     getHello() {
         return 'Hello World!';
     }
 };
-exports.ValidatorService = ValidatorService;
-exports.ValidatorService = ValidatorService = __decorate([
+exports.ModerationService = ModerationService;
+exports.ModerationService = ModerationService = __decorate([
     (0, common_1.Injectable)()
-], ValidatorService);
+], ModerationService);
 
 
 /***/ })
@@ -142,10 +148,20 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __webpack_require__(1);
-const validator_module_1 = __webpack_require__(2);
+const swagger_1 = __webpack_require__(2);
+const moderation_module_1 = __webpack_require__(3);
 async function bootstrap() {
-    const app = await core_1.NestFactory.create(validator_module_1.ValidatorModule);
-    await app.listen(process.env.port ?? 3000);
+    const app = await core_1.NestFactory.create(moderation_module_1.ModerationModule);
+    const config = new swagger_1.DocumentBuilder()
+        .setTitle('Moderation API')
+        .setDescription('API para moderação de prompts de geração de imagens')
+        .setVersion('1.0')
+        .addTag('Moderation')
+        .build();
+    const document = swagger_1.SwaggerModule.createDocument(app, config);
+    swagger_1.SwaggerModule.setup('api', app, document);
+    await app.listen(3000);
+    console.log(`Moderation service is running on: http://localhost:3000/api`);
 }
 bootstrap();
 
