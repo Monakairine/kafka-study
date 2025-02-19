@@ -1,49 +1,39 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "apps/challenge/src",
+  "monorepo": true,
+  "root": "apps",
+  "sourceRoot": "apps",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": true,
-    "tsConfigPath": "apps/challenge/tsconfig.app.json"
+    "webpack": true
   },
-  "monorepo": true,
-  "root": "apps/challenge",
   "projects": {
-    "challenge": {
+    "generation": {
       "type": "application",
-      "root": "apps/challenge",
+      "root": "apps/generation",
       "entryFile": "main",
-      "sourceRoot": "apps/challenge/src",
+      "sourceRoot": "apps/generation/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/challenge/tsconfig.app.json"
+        "tsConfigPath": "apps/generation/tsconfig.app.json"
       }
     },
-    "generator": {
+    "generation-producer": {
       "type": "application",
-      "root": "apps/generator",
+      "root": "apps/generation-producer",
       "entryFile": "main",
-      "sourceRoot": "apps/generator/src",
+      "sourceRoot": "apps/generation-producer/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/generator/tsconfig.app.json"
+        "tsConfigPath": "apps/generation-producer/tsconfig.app.json"
       }
     },
-    "producer": {
+    "moderation": {
       "type": "application",
-      "root": "apps/producer",
+      "root": "apps/moderation",
       "entryFile": "main",
-      "sourceRoot": "apps/producer/src",
+      "sourceRoot": "apps/moderation/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/producer/tsconfig.app.json"
-      }
-    },
-    "validator": {
-      "type": "application",
-      "root": "apps/validator",
-      "entryFile": "main",
-      "sourceRoot": "apps/validator/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/validator/tsconfig.app.json"
+        "tsConfigPath": "apps/moderation/tsconfig.app.json"
       }
     }
   }
