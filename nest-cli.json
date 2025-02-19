@@ -9,15 +9,6 @@
     "webpack": true
   },
   "projects": {
-    "generation": {
-      "type": "application",
-      "root": "apps/generation",
-      "entryFile": "main",
-      "sourceRoot": "apps/generation/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/generation/tsconfig.app.json"
-      }
-    },
     "generation-producer": {
       "type": "application",
       "root": "apps/generation-producer",
