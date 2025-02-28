@@ -1,25 +1,5 @@
 version: "3.8"
 services:
-  localstack:
-    image: localstack/localstack
-    healthcheck:
-      test: [ "CMD", "curl", "http://127.0.0.1:4566/health" ]
-      interval: 15s
-      timeout: 30s
-      retries: 5
-    ports:
-      - "4566:4566"
-    environment:
-      - DEBUG=1
-      - DATA_DIR=/data
-      - AWS_DEFAULT_REGION=us-east-1
-      - HOSTNAME_EXTERNAL=127.0.0.1
-      - LOCALSTACK_HOST=127.0.0.1
-      - DOCKER_HOST=unix:///var/run/docker.sock
-      - LEGACY_DIRECTORIES=0
-    volumes:
-      - localstack-data:/data
-      - "/var/run/docker.sock:/var/run/docker.sock"
   kafka:
     image: ${KAFKA_IMAGE:-bitnami/kafka:3.2}
     container_name: kafka
