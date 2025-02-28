@@ -1,0 +1,100 @@
+version: "3.8"
+services:
+  localstack:
+    image: localstack/localstack
+    healthcheck:
+      test: [ "CMD", "curl", "http://127.0.0.1:4566/health" ]
+      interval: 15s
+      timeout: 30s
+      retries: 5
+    ports:
+      - "4566:4566"
+    environment:
+      - DEBUG=1
+      - DATA_DIR=/data
+      - AWS_DEFAULT_REGION=us-east-1
+      - HOSTNAME_EXTERNAL=127.0.0.1
+      - LOCALSTACK_HOST=127.0.0.1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - LEGACY_DIRECTORIES=0
+    volumes:
+      - localstack-data:/data
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  kafka:
+    image: ${KAFKA_IMAGE:-bitnami/kafka:3.2}
+    container_name: kafka
+    restart: on-failure
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "9094:9094"
+    healthcheck:
+      test: [
+        "CMD",
+        "kafka-topics.sh",
+        "--list",
+        "--bootstrap-server",
+        "kafka:9092"
+      ]
+      start_period: 30s
+      interval: 5s
+      timeout: 30s
+      retries: 10
+    environment:
+      - KAFKA_CFG_NODE_ID=1
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka:9092,EXTERNAL://127.0.0.1:9094
+      - KAFKA_CFG_ADVERTISED_HOST_NAME=127.0.0.1
+      - KAFKA_CFG_ADVERTISED_PORT=9092
+      - KAFKA_CFG_BROKER_ID=1
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@127.0.0.1:9093
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENERS=INTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_ALLOW_EVERYONE_IF_NO_ACL_FOUND=true
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+
+  kafka-rest-proxy:
+    image: ${KAFKA_REST_IMAGE:-confluentinc/cp-kafka-rest:7.2.1}
+    ports:
+      - 8082:8082
+    container_name: kafka-rest-proxy
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      - KAFKA_REST_LISTENERS=http://0.0.0.0:8082
+      - KAFKA_REST_BOOTSTRAP_SERVERS=PLAINTEXT://kafka:9092
+      - KAFKA_REST_SCHEMA_REGISTRY_URL=http://schemaregistry:8081
+
+  kafka-ui:
+    image: ${REGISTRY:-provectuslabs/kafka-ui}
+    ports:
+      - 8080:8080
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_SCHEMAREGISTRY=http://schemaregistry:8081
+
+  schema-registry:
+    image: ${SCHEMA_REGISTRY_IMAGE:-confluentinc/cp-schema-registry:7.2.1}
+    container_name: schemaregistry
+    restart: always
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - 8081:8081
+    environment:
+      - SCHEMA_REGISTRY_HOST_NAME=schemaregistryde
+      - SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS=PLAINTEXT://kafka:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+
+volumes:
+  localstack-data:
