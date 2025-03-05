@@ -1,11 +1,18 @@
 import { Kafka } from 'kafkajs';
-import { SchemaRegistry } from '@kafkajs/confluent-schema-registry';
+import { SchemaRegistry } from '@kafkajs/confluent-schema-registry';//valida as mensagens do kafka
 
 // Initialize Kafka client
 const kafka = new Kafka({
   clientId: 'schema-registry-demo',
   brokers: ['localhost:9094']
 });
+
+//O broker no Kafka é um servidor que recebe, 
+//armazena e distribui mensagens para os consumidores. 
+//Ele é o coração do Apache Kafka, funcionando como um intermediário entre produtores 
+//(quem envia mensagens) e consumidores (quem recebe mensagens).
+
+
 
 // Initialize Schema Registry client
 const registry = new SchemaRegistry({
