@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "rootDir": "../", // Adjusted to include the parent directory
+    "strict": true,
+    "esModuleInterop": true,  
+    "skipLibCheck": true 
+  }
+}
