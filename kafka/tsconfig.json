@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",               // Pasta de saída dos arquivos compilados
+    "rootDir": "./src",               // Pasta de entrada (código fonte)
+    "module": "CommonJS",             // Define o sistema de módulos
+    "target": "ES6",                  // Versão do JavaScript alvo
+    "strict": true,                    // Habilita verificações estritas
+    "esModuleInterop": true,          // Permite importações padrão do ES6
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"],                  // Apenas compilar arquivos dentro de src
+  "exclude": ["node_modules", "dist"]  // Ignorar essas pastas
+}
