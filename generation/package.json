@@ -12,13 +12,13 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@kafkajs/confluent-schema-registry": "^3.6.1",
-    "express": "^4.21.2",
-    "kafkajs": "^2.2.4"
+    "@kafkajs/confluent-schema-registry": "3.6.1",
+    "express": "4.21.2",
+    "kafkajs": "2.2.4"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.2"
+    "@types/express": "5.0.0",
+    "ts-node": "10.9.2",
+    "typescript": "5.8.2"
   }
 }
