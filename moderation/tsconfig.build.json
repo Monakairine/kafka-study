@@ -8,6 +8,6 @@
     "sourceMap": true,
     "moduleResolution": "node"
   },
-  "include": ["src/**/*", "kafka/**/*"],  
+  "include": ["src/**/*"],  
   "exclude": ["node_modules", "test", "dist"] 
 }

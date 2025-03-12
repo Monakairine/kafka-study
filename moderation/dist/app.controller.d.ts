@@ -3,5 +3,5 @@ export declare class AppController {
     private readonly appService;
     constructor(appService: AppService);
     getHello(): string;
-    handleKafkaMessage(message: any): Promise<void>;
+    handleKafkaMessage(message: any): void;
 }
