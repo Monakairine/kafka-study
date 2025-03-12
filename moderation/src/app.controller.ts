@@ -1,14 +1,10 @@
-import { Controller, Get, Logger } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { registry } from '../../kafka/src/kafka-config';
 
 @Controller()
 export class AppController {
-  constructor(
-    private readonly appService: AppService,
-    private readonly logger = new Logger(AppController.name),
-  ) {}
+  constructor(private readonly appService: AppService) {}
 
   @Get()
   getHello(): string {
@@ -16,15 +12,12 @@ export class AppController {
   }
 
   @MessagePattern('generation-request')
-  async handleKafkaMessage(@Payload() message: { value: Buffer }) {
+  handleKafkaMessage(@Payload() message: any) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const decodedMessage = await registry.decode(message.value);
-      this.logger.log(
-        `📩 Mensagem recebida: ${JSON.stringify(decodedMessage)}`,
-      );
+      console.log(`📨 Mensagem recebida: ${JSON.stringify(message)}`);
+      // a propria lib do microservice ja faz o decode da mensagem
     } catch (error) {
-      this.logger.error(`❌ Erro ao decodificar mensagem: ${error}`);
+      console.log(`❌ Erro ao decodificar mensagem: ${error}`);
     }
   }
 }
