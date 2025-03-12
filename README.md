@@ -1,4 +1,4 @@
-1. run generation
+1. run generation inside services folder
 npm run start
 
 
@@ -6,7 +6,7 @@ npm run start
   docker-compose up-d 
 
 
-3. run moderation
+3. run moderation inside services folder
 nest start
 
 

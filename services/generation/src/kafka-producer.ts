@@ -1,4 +1,4 @@
-import { kafka, KAFKA_TOPIC } from "../../kafka/src/kafka-config";
+import { kafka, KAFKA_TOPIC } from "../../../kafka/src/kafka-config";
 
 const producer = kafka.producer();
 
