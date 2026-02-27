@@ -14,7 +14,10 @@ import { AppService } from './app.service';
             brokers: ['localhost:9094'],
           },
           consumer: {
-            groupId: 'moderation-group', // Group ID for Kafka consumer
+            groupId: 'moderation-group',
+            sessionTimeout: 30000,
+            rebalanceTimeout: 60000,
+            heartbeatInterval: 3000,
           },
         },
       },
