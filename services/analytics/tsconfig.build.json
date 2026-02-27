@@ -1,0 +1,1 @@
+{"compilerOptions":{"outDir":"./dist","declaration":true,"removeComments":true,"emitDecoratorMetadata":true,"experimentalDecorators":true,"sourceMap":true,"moduleResolution":"node"},"include":["src/**/*"],"exclude":["node_modules","test","dist"]}

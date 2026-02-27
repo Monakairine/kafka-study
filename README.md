@@ -6,7 +6,8 @@ A small demo project for learning **Apache Kafka** with a microservices-style fl
 
 - **Generation service** (Express) — Accepts `POST /generate`, publishes to Kafka topic `generation-request`.
 - **Kafka** — Broker + Schema Registry + Kafka UI + REST Proxy (Docker).
-- **Moderation service** (NestJS) — Kafka consumer (group: `moderation-group`); scaffold only.
+- **Moderation service** (NestJS) — Kafka consumer (group: `moderation-group`).
+- **Analytics service** (NestJS) — Kafka consumer (group: `analytics-group`); logs generation events and can forward them to an endpoint (e.g. Segment, Mixpanel).
 - **Generation-complete service** (NestJS) — Placeholder for a second consumer.
 
 ## Prerequisites
@@ -47,6 +48,9 @@ cd services/generation && npm install && cd ../..
 
 # Moderation service (consumer)
 cd services/moderation && npm install && cd ../..
+
+# Analytics service (consumer)
+cd services/analytics && npm install && cd ../..
 ```
 
 ### 3. Run the generation service (producer)
@@ -67,13 +71,24 @@ cd services/moderation
 npm run start
 ```
 
-For development with watch mode:
+For development with watch mode: `npm run start:dev`.
+
+### 5. (Optional) Run the analytics service
+
+In a **third terminal**, to log generation events and optionally send them to an external analytics endpoint:
 
 ```bash
-npm run start:dev
+cd services/analytics
+npm run start
 ```
 
-### 5. Send a request
+To forward events to an API (e.g. Segment, Mixpanel, or your own), set the endpoint before starting:
+
+```bash
+ANALYTICS_ENDPOINT=https://api.segment.io/v1/track npm run start
+```
+
+### 6. Send a request
 
 In another terminal (or with curl from anywhere):
 
@@ -89,7 +104,7 @@ Expected response:
 {"message":"Request sent to Kafka","requestId":"..."}
 ```
 
-The message is published to the `generation-request` topic. You can confirm in Kafka UI at http://localhost:8080.
+The message is published to the `generation-request` topic. **Moderation** and **analytics** (if running) will each receive the same event; you can confirm in Kafka UI at http://localhost:8080.
 
 ## Project layout
 
@@ -101,9 +116,34 @@ kafka-study/
 ├── services/
 │   ├── generation/           # Express app — POST /generate → Kafka
 │   ├── moderation/           # NestJS Kafka consumer (moderation-group)
+│   ├── analytics/            # NestJS Kafka consumer (analytics-group); emits analytics events
 │   └── generation_complete/  # NestJS placeholder consumer
 └── README.md
 ```
+
+## Flow: how messages move and when they’re “done”
+
+### 1. From request to the topic
+
+1. Client calls `POST /generate` → **Generation service** publishes a message to the topic `generation-request`.
+2. The message is **appended to the topic** (Kafka treats the topic as a **log**, not a classic queue).
+3. The message **stays in the topic** until **retention** removes it (e.g. by time or size; often ~7 days by default). It is **not** removed when a consumer reads it.
+
+### 2. Multiple consumers, same message
+
+- **Moderation** and **Analytics** use **different consumer groups** (`moderation-group`, `analytics-group`).
+- Each consumer group has its **own offset** (position) per partition. So both groups can read the **same** message from the topic; each group processes it **once** and then moves its offset forward.
+- So: one message → moderation processes it once, analytics processes it once. The message remains on the broker until retention deletes it, but **each group does not get the same message again** because their offsets have moved past it.
+
+### 3. When does the message disappear?
+
+- When the broker’s **retention** policy runs (time-based or size-based). After that, the data is deleted and no consumer can read it again.
+- It does **not** stay in the topic forever unless you configure retention that way.
+
+### 4. When could the same message be processed more than once?
+
+- **Same consumer group:** Normally no — the group commits its offset after processing, so the next fetch returns only newer messages.
+- Duplicates can happen if: the consumer **doesn’t commit** the offset (e.g. crash before commit), someone **resets the offset** for replay, or there’s a bug (e.g. processing without committing).
 
 ## Troubleshooting
 
