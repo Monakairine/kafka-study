@@ -56,6 +56,9 @@ function bootstrap() {
                             },
                             consumer: {
                                 groupId: 'moderation-group',
+                                sessionTimeout: 30000,
+                                rebalanceTimeout: 60000,
+                                heartbeatInterval: 3000,
                             },
                         },
                     });
