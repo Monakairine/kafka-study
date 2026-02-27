@@ -10,6 +10,61 @@ A small demo project for learning **Apache Kafka** with a microservices-style fl
 - **Analytics service** (NestJS) — Kafka consumer (group: `analytics-group`); logs generation events and can forward them to an endpoint (e.g. Segment, Mixpanel).
 - **Generation-complete service** (NestJS) — Placeholder for a second consumer.
 
+## Kafka concepts: broker, topic, consumer, schema registry
+
+### Broker
+
+A **broker** is the Kafka server that stores and serves data. It receives messages from **producers**, stores them in **topics**, and delivers them to **consumers**. In this project you run one broker in Docker (`kafka` container). In production you usually run several brokers (a cluster) for fault tolerance and scale. Clients connect to the broker using the address you configure (here: `localhost:9094`).
+
+### Topic
+
+A **topic** is a named log (stream) of messages. Producers write to a topic; consumers read from it. Each topic is split into one or more **partitions** (for parallelism and order per partition). In this project there is one topic: `generation-request`. Messages stay in the topic until **retention** deletes them; they are not removed when a consumer reads them.
+
+### Consumer
+
+A **consumer** is an application (or process) that reads messages from one or more topics. It belongs to a **consumer group**. Each group has its own **offset** (position) per partition, so the same message can be read by different groups (e.g. moderation and analytics) while each group processes it once and moves forward. In this project, the **moderation** and **analytics** services are consumers (different groups) on the topic `generation-request`.
+
+### Schema Registry
+
+The **Schema Registry** is a separate service (not part of core Kafka). It stores **schemas** (e.g. Avro, JSON Schema) for the data in your topics. Producers and consumers can use it to serialize/deserialize messages in a consistent way and evolve schemas over time. In this project it runs in Docker (port 8081); the generation/moderaton/analytics services currently send plain JSON, so they don’t use it yet, but it’s there if you want to add schema-based messages later.
+
+### How they fit together
+
+```
+                  PRODUCER
+              (Your Service)
+                     │
+                     │  sends event
+                     ▼
+            ┌──────────────────┐
+            │      BROKER      │
+            │     (Kafka)      │
+            └────────┬─────────┘
+                     │
+                     │ stores messages in
+                     ▼
+            ┌──────────────────┐
+            │       TOPIC      │
+            │ generation-req   │
+            │  (partitioned)   │
+            └────────┬─────────┘
+                     │
+        ┌────────────┴────────────┐
+        ▼                         ▼
+┌────────────────┐      ┌────────────────┐
+│   CONSUMER     │      │   CONSUMER     │
+│  moderation    │      │   analytics    │
+│   (group A)    │      │   (group B)    │
+└────────────────┘      └────────────────┘
+
+Optional (advanced):
+
+            ┌──────────────────┐
+            │ Schema Registry  │
+            │ (message format) │
+            └──────────────────┘
+```
+
 ## Prerequisites
 
 - **Node.js** (v18+)
